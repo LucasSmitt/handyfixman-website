@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gallery Admin — Handyman Charlotte</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --yellow: #F5C800;
+    --yellow-dark: #D4A900;
+    --black: #0a0a0a;
+    --black2: #141414;
+    --white: #ffffff;
+    --gray: #1e1e1e;
+    --gray2: #2a2a2a;
+    --text-muted: #888;
+    --green: #22c55e;
+    --red: #ef4444;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--black); color: var(--white); font-family: 'Barlow', sans-serif; min-height: 100vh; }
+
+  header {
+    background: rgba(10,10,10,0.97);
+    border-bottom: 2px solid var(--yellow);
+    padding: 0 40px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 2px; color: var(--white); text-decoration: none; }
+  .logo span { color: var(--yellow); }
+  .header-title { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--text-muted); }
+  .back-link { display: inline-flex; align-items: center; gap: 8px; font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+  .back-link:hover { color: var(--yellow); }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 48px 40px 80px; }
+
+  .page-title { font-family: 'Bebas Neue', sans-serif; font-size: 56px; letter-spacing: 2px; line-height: 1; margin-bottom: 8px; }
+  .page-title span { color: var(--yellow); }
+  .page-sub { font-size: 16px; color: var(--text-muted); margin-bottom: 48px; }
+
+  /* UPLOAD ZONE */
+  .upload-zone {
+    border: 2px dashed rgba(245,200,0,0.3);
+    border-radius: 12px;
+    padding: 56px 40px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    margin-bottom: 48px;
+    position: relative;
+  }
+  .upload-zone:hover, .upload-zone.drag-over { border-color: var(--yellow); background: rgba(245,200,0,0.04); }
+  .upload-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .upload-icon { width: 56px; height: 56px; margin: 0 auto 20px; color: var(--yellow); opacity: 0.7; }
+  .upload-title { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--white); margin-bottom: 8px; }
+  .upload-sub { font-size: 14px; color: var(--text-muted); margin-bottom: 20px; }
+  .upload-btn { display: inline-flex; align-items: center; gap: 8px; background: var(--yellow); color: var(--black); font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 12px 28px; border-radius: 8px; border: none; pointer-events: none; }
+
+  /* PROGRESS */
+  .upload-progress { display: none; margin-top: 20px; }
+  .progress-bar-wrap { background: rgba(255,255,255,0.08); border-radius: 6px; height: 6px; overflow: hidden; margin-bottom: 8px; }
+  .progress-bar { height: 100%; background: var(--yellow); border-radius: 6px; width: 0%; transition: width 0.3s; }
+  .progress-text { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; color: var(--yellow); letter-spacing: 1px; text-transform: uppercase; }
+
+  /* TOOLBAR */
+  .toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
+  .toolbar-left { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--white); }
+  .toolbar-left span { color: var(--yellow); margin-left: 8px; }
+  .toolbar-right { display: flex; gap: 12px; }
+
+  .btn-danger { display: inline-flex; align-items: center; gap: 8px; background: transparent; color: var(--red); font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 10px 20px; border: 2px solid rgba(239,68,68,0.3); border-radius: 8px; cursor: pointer; transition: border-color 0.2s, background 0.2s; }
+  .btn-danger:hover { border-color: var(--red); background: rgba(239,68,68,0.08); }
+
+  /* PHOTO GRID */
+  .photo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+
+  .photo-item { position: relative; border-radius: 8px; overflow: hidden; aspect-ratio: 1; background: var(--gray); cursor: grab; border: 2px solid transparent; transition: border-color 0.2s, transform 0.2s; }
+  .photo-item:hover { border-color: var(--yellow); }
+  .photo-item.dragging { opacity: 0.4; transform: scale(0.96); }
+  .photo-item.drag-target { border-color: var(--yellow); background: rgba(245,200,0,0.1); }
+  .photo-item img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+
+  .photo-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0); transition: background 0.2s; display: flex; align-items: flex-start; justify-content: flex-end; padding: 8px; }
+  .photo-item:hover .photo-overlay { background: rgba(0,0,0,0.5); }
+
+  .photo-delete { width: 34px; height: 34px; background: var(--red); border: none; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; }
+  .photo-item:hover .photo-delete { opacity: 1; }
+  .photo-delete svg { width: 16px; height: 16px; stroke: white; fill: none; stroke-width: 2.5; stroke-linecap: round; }
+
+  .photo-order { position: absolute; top: 8px; left: 8px; width: 24px; height: 24px; background: rgba(0,0,0,0.7); border-radius: 4px; font-family: 'Bebas Neue', sans-serif; font-size: 14px; color: var(--yellow); display: flex; align-items: center; justify-content: center; pointer-events: none; }
+  .photo-drag-hint { position: absolute; bottom: 8px; left: 8px; font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.5); opacity: 0; transition: opacity 0.2s; pointer-events: none; }
+  .photo-item:hover .photo-drag-hint { opacity: 1; }
+
+  /* SKELETON */
+  .photo-skeleton { background: var(--gray); border-radius: 8px; aspect-ratio: 1; animation: pulse 1.5s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  /* EMPTY */
+  .empty-state { grid-column: span 4; text-align: center; padding: 60px 20px; color: var(--text-muted); }
+  .empty-state p { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; letter-spacing: 1px; margin-top: 16px; }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: 32px; right: 32px; font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 14px 24px; border-radius: 10px; display: flex; align-items: center; gap: 10px; transform: translateY(80px); opacity: 0; transition: transform 0.3s ease, opacity 0.3s ease; z-index: 999; pointer-events: none; }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { background: var(--green); color: var(--black); }
+  .toast.error { background: var(--red); color: var(--white); }
+  .toast svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+  /* HELP */
+  .help-box { background: var(--gray); border-radius: 10px; padding: 24px 28px; margin-top: 48px; border-left: 3px solid var(--yellow); }
+  .help-box h3 { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--yellow); margin-bottom: 12px; }
+  .help-box ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .help-box li { font-size: 14px; color: var(--text-muted); line-height: 1.5; padding-left: 16px; position: relative; }
+  .help-box li::before { content: '→'; position: absolute; left: 0; color: var(--yellow); }
+
+  @media (max-width: 700px) {
+    header { padding: 0 20px; }
+    main { padding: 32px 20px 60px; }
+    .photo-grid { grid-template-columns: repeat(2, 1fr); }
+    .empty-state { grid-column: span 2; }
+    .page-title { font-size: 40px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="logo">HANDY<span>MAN</span></a>
+  <span class="header-title">Gallery Admin</span>
+  <a href="wallpaper.html" class="back-link">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    View Page
+  </a>
+</header>
+
+<main>
+  <h1 class="page-title">PORTFOLIO <span>GALLERY</span></h1>
+  <p class="page-sub">Upload your photos, drag to reorder, hover and click × to delete.</p>
+
+  <div class="upload-zone" id="uploadZone">
+    <input type="file" id="fileInput" accept="image/*" multiple>
+    <div class="upload-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    </div>
+    <div class="upload-title">Drop photos here</div>
+    <p class="upload-sub">or click to browse — JPG, PNG, WEBP · max 10MB per photo</p>
+    <div class="upload-btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      Choose Photos
+    </div>
+    <div class="upload-progress" id="uploadProgress">
+      <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
+      <div class="progress-text" id="progressText">Uploading...</div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="toolbar-left">Photos <span id="photoCount">0</span></div>
+    <div class="toolbar-right">
+      <button class="btn-danger" id="clearAll">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+        Delete All
+      </button>
+    </div>
+  </div>
+
+  <div class="photo-grid" id="photoGrid">
+    <div class="photo-skeleton"></div>
+    <div class="photo-skeleton"></div>
+    <div class="photo-skeleton"></div>
+    <div class="photo-skeleton"></div>
+  </div>
+
+  <div class="help-box">
+    <h3>How to use</h3>
+    <ul>
+      <li>Upload your real work photos — drag & drop multiple at once.</li>
+      <li>Drag photos to reorder them in the gallery.</li>
+      <li>Hover over a photo and click × to delete it from the server.</li>
+      <li>Changes appear on the wallpaper page immediately — no save button needed.</li>
+    </ul>
+  </div>
+</main>
+
+<div class="toast" id="toast">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" id="toastIcon"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="toastMsg">Done!</span>
+</div>
+
+<script>
+  const API = 'upload.php';
+  let photos = [];
+  let dragSrc = null;
+  let uploading = false;
+
+  // ── TOAST ──
+  function showToast(msg, type = 'success') {
+    const toast = document.getElementById('toast');
+    const icon = document.getElementById('toastIcon');
+    toast.className = 'toast ' + type;
+    document.getElementById('toastMsg').textContent = msg;
+    icon.innerHTML = type === 'success'
+      ? '<polyline points="20 6 9 17 4 12"/>'
+      : '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>';
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  }
+
+  // ── LOAD PHOTOS ──
+  async function loadPhotos() {
+    try {
+      const res = await fetch(API + '?action=list');
+      const data = await res.json();
+      if (data.success) {
+        photos = data.photos;
+        renderGrid();
+      } else {
+        showToast('Could not load photos', 'error');
+        renderGrid();
+      }
+    } catch(e) {
+      showToast('Server error — check upload.php is in the same folder', 'error');
+      renderGrid();
+    }
+  }
+
+  // ── RENDER GRID ──
+  function renderGrid() {
+    const grid = document.getElementById('photoGrid');
+    document.getElementById('photoCount').textContent = photos.length;
+
+    if (photos.length === 0) {
+      grid.innerHTML = `<div class="empty-state">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        <p>No photos yet — upload your first one above</p>
+      </div>`;
+      return;
+    }
+
+    grid.innerHTML = photos.map((p, i) => `
+      <div class="photo-item" draggable="true" data-index="${i}" data-filename="${p.filename}">
+        <img src="${p.url}" alt="Photo ${i+1}" loading="lazy">
+        <div class="photo-overlay">
+          <button class="photo-delete" data-filename="${p.filename}" title="Delete">
+            <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="photo-order">${i + 1}</div>
+        <div class="photo-drag-hint">drag to reorder</div>
+      </div>
+    `).join('');
+
+    // Drag & drop reorder
+    grid.querySelectorAll('.photo-item').forEach(item => {
+      item.addEventListener('dragstart', e => {
+        dragSrc = parseInt(item.dataset.index);
+        setTimeout(() => item.classList.add('dragging'), 0);
+        e.dataTransfer.effectAllowed = 'move';
+      });
+      item.addEventListener('dragend', () => item.classList.remove('dragging'));
+      item.addEventListener('dragover', e => { e.preventDefault(); item.classList.add('drag-target'); });
+      item.addEventListener('dragleave', () => item.classList.remove('drag-target'));
+      item.addEventListener('drop', async e => {
+        e.preventDefault();
+        item.classList.remove('drag-target');
+        const dropIdx = parseInt(item.dataset.index);
+        if (dragSrc !== null && dragSrc !== dropIdx) {
+          const moved = photos.splice(dragSrc, 1)[0];
+          photos.splice(dropIdx, 0, moved);
+          renderGrid();
+          await saveOrder();
+        }
+      });
+    });
+
+    // Delete
+    grid.querySelectorAll('.photo-delete').forEach(btn => {
+      btn.addEventListener('click', async e => {
+        e.stopPropagation();
+        if (!confirm('Delete this photo?')) return;
+        const filename = btn.dataset.filename;
+        try {
+          const res = await fetch(API + '?action=delete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ filename })
+          });
+          const data = await res.json();
+          if (data.success) {
+            photos = photos.filter(p => p.filename !== filename);
+            renderGrid();
+            showToast('Photo deleted');
+          } else {
+            showToast('Delete failed', 'error');
+          }
+        } catch(e) {
+          showToast('Server error', 'error');
+        }
+      });
+    });
+  }
+
+  // ── SAVE ORDER ──
+  async function saveOrder() {
+    try {
+      await fetch(API + '?action=reorder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ order: photos.map(p => p.filename) })
+      });
+      showToast('Order saved');
+    } catch(e) {}
+  }
+
+  // ── UPLOAD ──
+  async function handleFiles(files) {
+    if (!files.length || uploading) return;
+    uploading = true;
+
+    const progress = document.getElementById('uploadProgress');
+    const bar = document.getElementById('progressBar');
+    const text = document.getElementById('progressText');
+    progress.style.display = 'block';
+
+    const validFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
+    let done = 0;
+
+    for (const file of validFiles) {
+      text.textContent = `Uploading ${done + 1} of ${validFiles.length}...`;
+      bar.style.width = (done / validFiles.length * 100) + '%';
+
+      const fd = new FormData();
+      fd.append('photo', file);
+
+      try {
+        const res = await fetch(API + '?action=upload', { method: 'POST', body: fd });
+        const data = await res.json();
+        if (data.success) {
+          photos.push({ filename: data.filename, url: data.url });
+        } else {
+          showToast('Failed: ' + data.error, 'error');
+        }
+      } catch(e) {
+        showToast('Upload error', 'error');
+      }
+      done++;
+    }
+
+    bar.style.width = '100%';
+    text.textContent = 'Done!';
+    setTimeout(() => { progress.style.display = 'none'; bar.style.width = '0%'; }, 1000);
+
+    uploading = false;
+    await saveOrder();
+    renderGrid();
+    showToast(`${done} photo${done !== 1 ? 's' : ''} uploaded!`);
+  }
+
+  document.getElementById('fileInput').addEventListener('change', function() {
+    handleFiles(this.files);
+    this.value = '';
+  });
+
+  const zone = document.getElementById('uploadZone');
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('drag-over');
+    if (e.dataTransfer.files.length) handleFiles(e.dataTransfer.files);
+  });
+
+  // ── DELETE ALL ──
+  document.getElementById('clearAll').addEventListener('click', async () => {
+    if (!photos.length) return;
+    if (!confirm('Delete ALL photos from the server? This cannot be undone.')) return;
+    for (const p of photos) {
+      try {
+        await fetch(API + '?action=delete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filename: p.filename })
+        });
+      } catch(e) {}
+    }
+    photos = [];
+    renderGrid();
+    showToast('All photos deleted');
+  });
+
+  // ── INIT ──
+  loadPhotos();
+</script>
+</body>
+</html>
